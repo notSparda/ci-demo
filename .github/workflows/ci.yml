@@ -45,3 +45,27 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/calculator:latest
             ${{ secrets.DOCKER_USERNAME }}/calculator:${{ github.sha }}
+
+ # ── Job 3: Deploy ────────────────────────────────────
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-push              # only if build-push passes
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host:     ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key:      ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            docker pull ${{ env.IMAGE_NAME }}:latest
+            docker stop calculator || true
+            docker rm   calculator || true
+            docker run -d \
+              --name myapp \
+              --restart unless-stopped \
+              -p 8000:8000 \
+              ${{ env.IMAGE_NAME }}:latest
+            echo 'Deployed:' $(date)
+        
+    
