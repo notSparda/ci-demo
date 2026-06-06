@@ -54,9 +54,9 @@ jobs:
       - name: Deploy to EC2
         uses: appleboy/ssh-action@v1
         with:
-          host:     ${{ secrets.EC2_HOST }}
+          host:     ${{ secrets.PROD_EC2_HOST }}
           username: ubuntu
-          key:      ${{ secrets.EC2_SSH_KEY }}
+          key:      ${{ secrets.PROD_SSH_KEY }}
           script: |
             docker pull ${{ env.IMAGE_NAME }}:latest
             docker stop calculator || true
